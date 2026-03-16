@@ -1,14 +1,14 @@
-# Chart Museum Manager Aplication Change Log
+# Chart Museum Service Manager Change Log
 项目代码所有显著的变更都会记录在这个文件中。
 
-## [1.0.0] - 2025-12-28
+## [1.0.0] - 2026-03-15
 ### 初始化
-- 项目初次开始版本管理
+- 项目初始化
 ### 变更
 - 现有项目代码
 ### 关联资源
 - 代码标签：1.0.0
-- 镜像标签：jatp:v1.0.0-alpha.1
+- git commit: a8c3f3001185152e3e5cea80f682775b7c2f7a71
 
 ## 语义化版本（Semantic Versioning，简称 SemVer）
 1. MAJOR（主版本号）：当你做了不兼容的 API 变更（如自动化测试框架核心接口重构、测试用例格式大幅调整、无法向下兼容旧版本配置）时，递增主版本号（如 1.3.2 → 2.0.0）。
