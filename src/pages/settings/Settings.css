@@ -1,0 +1,64 @@
+.settings-back {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+}
+
+.settings-card .card-title {
+  margin-bottom: 0.5rem;
+}
+
+.settings-desc {
+  margin-bottom: 1.5rem;
+  max-width: 560px;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 480px;
+}
+
+.settings-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.settings-input {
+  padding: 0.625rem 0.75rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.settings-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.settings-msg {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.settings-msg-success {
+  color: var(--success);
+}
+
+.settings-msg-error {
+  color: var(--danger);
+}
