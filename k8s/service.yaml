@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: chart-museum-manager
+  name: chart-museum-manager-service
   labels:
     app: chart-museum-manager
 spec:

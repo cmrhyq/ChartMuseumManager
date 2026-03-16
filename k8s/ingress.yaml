@@ -6,17 +6,23 @@ metadata:
     app: chart-museum-manager
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # 建议在生产环境开启 HTTPS 并启用 301 跳转
+    # 如已在上游（如 ALB / 网关）终止 TLS，可按需调整为 "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   rules:
-    - host: chartmuseum-manager.example.com
-      http:
+    - http:
         paths:
-          - path: /
+          - path: /chartmuseum/manager
             pathType: Prefix
             backend:
               service:
-                name: chart-museum-manager
+                name: chart-museum-manager-service
                 port:
                   name: http
+  # 如在 Ingress Controller 中终止 TLS，请在此处配置证书 Secret，并将上方 host 替换为实际域名
+  # tls:
+  #   - hosts:
+  #       - chartmuseum-manager.example.com
+  #     secretName: chartmuseum-manager-tls

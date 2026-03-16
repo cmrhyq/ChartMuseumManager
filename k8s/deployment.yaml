@@ -14,14 +14,33 @@ spec:
       labels:
         app: chart-museum-manager
     spec:
+      imagePullSecrets:
+        - name: tencent-ccr-secret
       containers:
         - name: chart-museum-manager
-          image: ccr.ccs.tencentyun.com/cmrhyq/dev:chartMuseumManager-latest
+          # 基础镜像名称由 kustomization.yaml 中的 images 段统一管理
+          # 默认写成逻辑名称，具体 registry 与 tag 通过 Kustomize 覆盖，便于在不同环境复用
+          image: chart-museum-manager
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
+          env:
+            - name: VITE_CHARTMUSEUM_API
+              valueFrom:
+                configMapKeyRef:
+                  name: chart-museum-manager-config
+                  key: VITE_CHARTMUSEUM_API
+          # 滚动更新策略，降低发布对线上流量的影响
+          # 如需一次性替换，可在环境覆盖中调整为 Recreate
+          # 这里使用较为保守的默认值，适合大多数前端应用场景
+          # （Deployment 级别字段由 kustomization 或上层覆盖时，请保持语义一致）
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 0
+          maxSurge: 1
           resources:
             requests:
               cpu: 50m
@@ -29,6 +48,14 @@ spec:
             limits:
               cpu: 200m
               memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: RuntimeDefault
           livenessProbe:
             httpGet:
               path: /

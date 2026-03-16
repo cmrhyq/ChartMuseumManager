@@ -37,13 +37,19 @@ kubectl apply -k . -n your-namespace
 
 ## 配置说明
 
-### 镜像配置
+### 镜像配置（推荐通过 Kustomize 管理）
 
-修改 `deployment.yaml` 中的镜像地址：
+- 不建议直接在 `deployment.yaml` 中硬编码镜像 registry 与 tag，便于在不同环境中复用同一套清单。
+- 本目录通过 `kustomization.yaml` 中的 `images` 段统一管理镜像：
 
 ```yaml
-image: your-registry/chartmuseum-manager:latest
+images:
+  - name: chart-museum-manager
+    newName: your-registry/chartmuseum-manager
+    newTag: latest
 ```
+
+当需要切换镜像仓库或版本时，仅需修改 `kustomization.yaml`，而无需改动 `deployment.yaml`。
 
 ### Ingress 域名
 
@@ -53,6 +59,12 @@ image: your-registry/chartmuseum-manager:latest
 rules:
   - host: your-domain.example.com
 ```
+
+生产环境建议：
+
+- 在 `ingress.yaml` 中为对应域名配置 `tls` 段并提供合法证书；
+- 将 `nginx.ingress.kubernetes.io/ssl-redirect` 设置为 `"true"`，确保 HTTP 请求自动跳转到 HTTPS；
+- 若在上游网关或负载均衡器终止 TLS，可根据实际架构调整是否在 Ingress 层再次跳转。
 
 ### 资源配置
 
