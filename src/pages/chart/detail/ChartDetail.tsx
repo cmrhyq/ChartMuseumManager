@@ -1,9 +1,28 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import {
+  Card,
+  Descriptions,
+  Button,
+  Typography,
+  Spin,
+  Result,
+  Tag,
+  Space,
+  List,
+} from 'antd'
+import {
+  ArrowLeftOutlined,
+  FileTextOutlined,
+  UserOutlined,
+  DownloadOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons'
 import { useAuth } from '@/auth/AuthContext.tsx'
 import { fetchChartDetail } from '@/api/chartmuseum.ts'
 import type { ChartDetail as ChartDetailType } from '@/types/chartmuseum.ts'
-import './ChartDetail.css'
+
+const { Title, Text } = Typography
 
 export default function ChartDetail() {
   const { name, version } = useParams<{ name: string; version: string }>()
@@ -35,91 +54,173 @@ export default function ChartDetail() {
 
   if (!name || !version) {
     return (
-      <div className="page-card">
-        <p className="text-secondary">缺少Chart名称或版本参数</p>
-        <Link to="/">返回Chart列表</Link>
-      </div>
+      <Card style={{ background: '#141414', border: '1px solid #303030' }}>
+        <Result
+          status="warning"
+          title="缺少参数"
+          subTitle="缺少 Chart 名称或版本参数"
+          extra={
+            <Button type="primary">
+              <Link to="/">返回 Chart 列表</Link>
+            </Button>
+          }
+        />
+      </Card>
     )
   }
 
   if (loading) {
     return (
-      <div className="page-card">
-        <p className="text-secondary">加载中…</p>
-      </div>
+      <Card style={{ background: '#141414', border: '1px solid #303030' }}>
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <Spin size="large" />
+          <div style={{ marginTop: 16 }}>
+            <Text type="secondary">加载中...</Text>
+          </div>
+        </div>
+      </Card>
     )
   }
 
   if (error || !detail) {
     return (
-      <div className="page-card card-error">
-        <p className="text-secondary">{error ?? '未找到该Chart版本'}</p>
-        <Link to="/">返回Chart列表</Link>
-      </div>
+      <Card style={{ background: '#141414', border: '1px solid #303030' }}>
+        <Result
+          status="error"
+          title="加载失败"
+          subTitle={error ?? '未找到该 Chart 版本'}
+          extra={
+            <Button type="primary">
+              <Link to="/">返回 Chart 列表</Link>
+            </Button>
+          }
+        />
+      </Card>
     )
   }
 
   return (
-    <div className="page-card chart-detail-card">
-      <div className="card-header">
-        <h2 className="card-title">
-          {detail.name} <span className="chart-detail-version">{detail.version}</span>
-        </h2>
-        <Link to="/" className="btn btn-outline btn-sm">
-          返回列表
+    <Card
+      style={{ background: '#141414', border: '1px solid #303030' }}
+      styles={{ body: { padding: 0 } }}
+    >
+      <div
+        style={{
+          padding: '20px 24px',
+          borderBottom: '1px solid #303030',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 16,
+        }}
+      >
+        <Space align="center">
+          <FileTextOutlined style={{ fontSize: 24, color: '#1668dc' }} />
+          <div>
+            <Title level={4} style={{ margin: 0 }}>
+              {detail.name}
+            </Title>
+            <Space size={8} style={{ marginTop: 4 }}>
+              <Tag color="blue">{detail.version}</Tag>
+              {detail.appVersion && <Tag color="green">App: {detail.appVersion}</Tag>}
+            </Space>
+          </div>
+        </Space>
+
+        <Link to="/">
+          <Button icon={<ArrowLeftOutlined />}>返回列表</Button>
         </Link>
       </div>
-      <dl className="chart-detail-dl">
-        {detail.description && (
-          <>
-            <dt>描述</dt>
-            <dd>{detail.description}</dd>
-          </>
-        )}
-        {detail.appVersion != null && detail.appVersion !== '' && (
-          <>
-            <dt>App 版本</dt>
-            <dd>{detail.appVersion}</dd>
-          </>
-        )}
-        {detail.apiVersion != null && detail.apiVersion !== '' && (
-          <>
-            <dt>API 版本</dt>
-            <dd>{detail.apiVersion}</dd>
-          </>
-        )}
+
+      <div style={{ padding: 24 }}>
+        <Descriptions
+          column={{ xs: 1, sm: 1, md: 2 }}
+          bordered
+          size="middle"
+          labelStyle={{ background: '#1f1f1f', width: 140 }}
+          contentStyle={{ background: '#141414' }}
+        >
+          {detail.description && (
+            <Descriptions.Item
+              label={
+                <Space>
+                  <InfoCircleOutlined />
+                  描述
+                </Space>
+              }
+              span={2}
+            >
+              {detail.description}
+            </Descriptions.Item>
+          )}
+
+          <Descriptions.Item label="Chart 版本">{detail.version}</Descriptions.Item>
+
+          {detail.appVersion != null && detail.appVersion !== '' && (
+            <Descriptions.Item label="App 版本">{detail.appVersion}</Descriptions.Item>
+          )}
+
+          {detail.apiVersion != null && detail.apiVersion !== '' && (
+            <Descriptions.Item label="API 版本">{detail.apiVersion}</Descriptions.Item>
+          )}
+        </Descriptions>
+
         {detail.maintainers != null && detail.maintainers.length > 0 && (
-          <>
-            <dt>维护者</dt>
-            <dd>
-              <ul className="chart-detail-list">
-                {detail.maintainers.map((m, i) => (
-                  <li key={i}>
+          <Card
+            title={
+              <Space>
+                <UserOutlined />
+                维护者
+              </Space>
+            }
+            size="small"
+            style={{ marginTop: 24, background: '#1f1f1f', border: '1px solid #303030' }}
+            styles={{ body: { padding: 0 } }}
+          >
+            <List
+              dataSource={detail.maintainers}
+              renderItem={(m) => (
+                <List.Item style={{ padding: '12px 16px' }}>
+                  <Text>
                     {m.name}
-                    {m.email ? ` (${m.email})` : ''}
-                  </li>
-                ))}
-              </ul>
-            </dd>
-          </>
+                    {m.email && (
+                      <Text type="secondary" style={{ marginLeft: 8 }}>
+                        ({m.email})
+                      </Text>
+                    )}
+                  </Text>
+                </List.Item>
+              )}
+            />
+          </Card>
         )}
+
         {detail.urls != null && detail.urls.length > 0 && (
-          <>
-            <dt>下载链接</dt>
-            <dd>
-              <ul className="chart-detail-list">
-                {detail.urls.map((u, i) => (
-                  <li key={i}>
-                    <a href={u} rel="noopener noreferrer" target="_blank">
-                      {u}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </dd>
-          </>
+          <Card
+            title={
+              <Space>
+                <DownloadOutlined />
+                下载链接
+              </Space>
+            }
+            size="small"
+            style={{ marginTop: 24, background: '#1f1f1f', border: '1px solid #303030' }}
+            styles={{ body: { padding: 0 } }}
+          >
+            <List
+              dataSource={detail.urls}
+              renderItem={(url) => (
+                <List.Item style={{ padding: '12px 16px' }}>
+                  <a href={url} rel="noopener noreferrer" target="_blank">
+                    {url}
+                  </a>
+                </List.Item>
+              )}
+            />
+          </Card>
         )}
-      </dl>
-    </div>
+      </div>
+    </Card>
   )
 }

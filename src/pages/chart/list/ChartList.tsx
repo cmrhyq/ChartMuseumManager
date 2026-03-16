@@ -1,57 +1,37 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  Card,
+  Table,
+  Button,
+  Input,
+  Space,
+  Typography,
+  Result,
+  Popconfirm,
+  message,
+  Tag,
+} from 'antd'
+import {
+  SearchOutlined,
+  ReloadOutlined,
+  DeleteOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons'
+import type { ColumnsType } from 'antd/es/table'
 import { useAuth } from '@/auth/AuthContext.tsx'
 import { fetchCharts, deleteChart } from '@/api/chartmuseum.ts'
 import type { ChartsMap, ChartVersion } from '@/types/chartmuseum.ts'
-import './ChartList.css'
 
-function ChartTableRow({
-  name,
-  version,
-  onDelete,
-  getToken,
-}: {
+const { Title, Text } = Typography
+
+interface ChartRow {
+  key: string
   name: string
-  version: ChartVersion
-  onDelete: () => void
-  getToken: () => string | null
-}) {
-  const [deleting, setDeleting] = useState(false)
-  const handleDelete = async () => {
-    if (!window.confirm(`确定要删除 ${name} @ ${version.version} 吗？`)) return
-    setDeleting(true)
-    try {
-      await deleteChart(name, version.version, getToken)
-      onDelete()
-    } catch {
-      alert('删除失败，请稍后重试')
-    } finally {
-      setDeleting(false)
-    }
-  }
-
-  return (
-    <tr>
-      <td className="chart-name">
-        <Link to={`/charts/${encodeURIComponent(name)}/${encodeURIComponent(version.version)}`}>
-          {name}
-        </Link>
-      </td>
-      <td className="chart-version">{version.version}</td>
-      <td className="chart-meta">{version.appVersion ?? '—'}</td>
-      <td className="chart-meta">{version.description ?? '—'}</td>
-      <td>
-        <button
-          type="button"
-          className="btn btn-danger btn-sm"
-          onClick={handleDelete}
-          disabled={deleting}
-        >
-          {deleting ? '删除中…' : '删除'}
-        </button>
-      </td>
-    </tr>
-  )
+  version: string
+  appVersion: string
+  description: string
+  versionData: ChartVersion
 }
 
 export default function ChartList() {
@@ -61,6 +41,7 @@ export default function ChartList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [deletingKeys, setDeletingKeys] = useState<Set<string>>(new Set())
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -80,26 +61,41 @@ export default function ChartList() {
     load()
   }, [load])
 
-  if (loading) {
-    return (
-      <div className="page-card">
-        <p className="text-secondary">加载中…</p>
-      </div>
-    )
+  const handleDelete = async (name: string, version: string) => {
+    const key = `${name}-${version}`
+    setDeletingKeys((prev) => new Set(prev).add(key))
+    try {
+      await deleteChart(name, version, getToken)
+      message.success(`已删除 ${name} @ ${version}`)
+      load()
+    } catch {
+      message.error('删除失败，请稍后重试')
+    } finally {
+      setDeletingKeys((prev) => {
+        const next = new Set(prev)
+        next.delete(key)
+        return next
+      })
+    }
   }
 
   if (error) {
     return (
-      <div className="page-card card-error">
-        <h2 className="card-title">无法连接 ChartMuseum</h2>
-        <p className="text-secondary">{error}</p>
-        <p className="text-secondary">
-          请在 <Link to="/settings">设置</Link> 中配置正确的 API 地址（例如 K8s Ingress 或 Service URL）。
-        </p>
-        <button type="button" className="btn btn-primary" onClick={load}>
-          重试
-        </button>
-      </div>
+      <Card style={{ background: '#141414', border: '1px solid #303030' }}>
+        <Result
+          status="error"
+          title="无法连接 ChartMuseum"
+          subTitle={error}
+          extra={[
+            <Button key="settings" type="default">
+              <Link to="/settings">前往设置</Link>
+            </Button>,
+            <Button key="retry" type="primary" onClick={load}>
+              重试
+            </Button>,
+          ]}
+        />
+      </Card>
     )
   }
 
@@ -110,64 +106,148 @@ export default function ChartList() {
     ? entries.filter(([name]) => name.toLowerCase().includes(searchLower))
     : entries
 
+  const dataSource: ChartRow[] = filteredEntries.flatMap(([name, versions]) =>
+    versions.map((v) => ({
+      key: `${name}-${v.version}`,
+      name,
+      version: v.version,
+      appVersion: v.appVersion ?? '—',
+      description: v.description ?? '—',
+      versionData: v,
+    })),
+  )
+
+  const columns: ColumnsType<ChartRow> = [
+    {
+      title: 'Chart 名称',
+      dataIndex: 'name',
+      key: 'name',
+      render: (name: string, record: ChartRow) => (
+        <Link
+          to={`/charts/${encodeURIComponent(name)}/${encodeURIComponent(record.version)}`}
+          style={{ fontWeight: 500 }}
+        >
+          <Space>
+            <FileTextOutlined />
+            {name}
+          </Space>
+        </Link>
+      ),
+    },
+    {
+      title: '版本',
+      dataIndex: 'version',
+      key: 'version',
+      width: 120,
+      render: (version: string) => <Tag color="blue">{version}</Tag>,
+    },
+    {
+      title: 'App 版本',
+      dataIndex: 'appVersion',
+      key: 'appVersion',
+      width: 120,
+      render: (appVersion: string) =>
+        appVersion !== '—' ? <Tag color="green">{appVersion}</Tag> : <Text type="secondary">—</Text>,
+    },
+    {
+      title: '描述',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+      render: (desc: string) =>
+        desc !== '—' ? desc : <Text type="secondary">—</Text>,
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 100,
+      render: (_: unknown, record: ChartRow) => (
+        <Popconfirm
+          title="确认删除"
+          description={`确定要删除 ${record.name} @ ${record.version} 吗？`}
+          onConfirm={() => handleDelete(record.name, record.version)}
+          okText="确认"
+          cancelText="取消"
+          okButtonProps={{ danger: true }}
+        >
+          <Button
+            type="text"
+            danger
+            icon={<DeleteOutlined />}
+            loading={deletingKeys.has(record.key)}
+          >
+            删除
+          </Button>
+        </Popconfirm>
+      ),
+    },
+  ]
+
   return (
-    <div className="page-card">
-      <div className="card-header">
-        <h2 className="card-title">Chart列表</h2>
-        <span className="text-secondary">
-          {entries.length} 个Chart，共 {totalVersions} 个版本
-        </span>
+    <Card
+      style={{ background: '#141414', border: '1px solid #303030' }}
+      styles={{ body: { padding: 0 } }}
+    >
+      <div style={{ padding: '20px 24px', borderBottom: '1px solid #303030' }}>
+        <Space
+          style={{
+            width: '100%',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+          }}
+        >
+          <Space direction="vertical" size={4}>
+            <Title level={4} style={{ margin: 0 }}>
+              Chart 列表
+            </Title>
+            <Text type="secondary">
+              {entries.length} 个 Chart，共 {totalVersions} 个版本
+            </Text>
+          </Space>
+
+          <Space>
+            <Input
+              placeholder="搜索 Chart 名称"
+              prefix={<SearchOutlined style={{ color: '#666' }} />}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ width: 200 }}
+              allowClear
+            />
+            <Button icon={<ReloadOutlined />} onClick={load} loading={loading}>
+              刷新
+            </Button>
+          </Space>
+        </Space>
       </div>
-      {entries.length > 0 && (
-        <div className="chart-list-search">
-          <input
-            type="search"
-            placeholder="按Chart名称筛选"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="search-input"
-            aria-label="按Chart名称筛选"
-          />
-        </div>
-      )}
-      {filteredEntries.length === 0 ? (
-        <p className="text-secondary">
-          {entries.length === 0 ? (
-          <>
-            暂无Chart。请前往 <Link to="/upload">上传Chart</Link> 添加。
-          </>
-        ) : (
-          '没有匹配的Chart名称'
-        )}
-        </p>
-      ) : (
-        <div className="table-wrap">
-          <table className="chart-table">
-            <thead>
-              <tr>
-                <th>Chart名称</th>
-                <th>版本</th>
-                <th>App 版本</th>
-                <th>描述</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEntries.flatMap(([name, versions]) =>
-                versions.map((v) => (
-                  <ChartTableRow
-                    key={`${name}-${v.version}`}
-                    name={name}
-                    version={v}
-                    onDelete={load}
-                    getToken={getToken}
-                  />
-                )),
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        loading={loading}
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: true,
+          showQuickJumper: true,
+          showTotal: (total) => `共 ${total} 条`,
+        }}
+        locale={{
+          emptyText: entries.length === 0 ? (
+            <Result
+              icon={<FileTextOutlined style={{ color: '#666' }} />}
+              title="暂无 Chart"
+              subTitle="请前往上传页面添加 Chart"
+              extra={
+                <Button type="primary">
+                  <Link to="/upload">上传 Chart</Link>
+                </Button>
+              }
+            />
+          ) : (
+            '没有匹配的 Chart 名称'
+          ),
+        }}
+      />
+    </Card>
   )
 }

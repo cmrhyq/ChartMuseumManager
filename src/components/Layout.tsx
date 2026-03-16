@@ -1,6 +1,15 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Layout as AntLayout, Menu, Button, Typography, Space } from 'antd'
+import {
+  AppstoreOutlined,
+  UploadOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons'
 import { useAuth } from '@/auth/AuthContext'
-import './Layout.css'
+
+const { Header, Content } = AntLayout
+const { Title } = Typography
 
 export default function Layout() {
   const { logout } = useAuth()
@@ -11,25 +20,69 @@ export default function Layout() {
     navigate('/login', { replace: true })
   }
 
+  const menuItems = [
+    {
+      key: '/',
+      icon: <AppstoreOutlined />,
+      label: <NavLink to="/">Chart 列表</NavLink>,
+    },
+    {
+      key: '/upload',
+      icon: <UploadOutlined />,
+      label: <NavLink to="/upload">上传图表</NavLink>,
+    },
+    {
+      key: '/settings',
+      icon: <SettingOutlined />,
+      label: <NavLink to="/settings">设置</NavLink>,
+    },
+  ]
+
   return (
-    <div className="layout">
-      <header className="layout-header">
-        <div className="layout-brand">
-          <span className="layout-logo" aria-hidden>◈</span>
-          <h1 className="layout-title">ChartMuseum 管理控制台</h1>
-        </div>
-        <nav className="app-nav">
-          <NavLink to="/" end>图表列表</NavLink>
-          <NavLink to="/upload">上传图表</NavLink>
-          <NavLink to="/settings">设置</NavLink>
-          <button type="button" className="btn btn-outline btn-sm" onClick={handleLogout}>
+    <AntLayout style={{ minHeight: '100vh' }}>
+      <Header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          borderBottom: '1px solid #303030',
+        }}
+      >
+        <Space align="center">
+          <span style={{ fontSize: 24, color: '#1668dc' }}>◈</span>
+          <Title level={4} style={{ margin: 0, color: '#fff' }}>
+            ChartMuseum 管理控制台
+          </Title>
+        </Space>
+
+        <Space>
+          <Menu
+            theme="dark"
+            mode="horizontal"
+            items={menuItems}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: 'transparent',
+              borderBottom: 'none',
+            }}
+            selectedKeys={[window.location.pathname]}
+          />
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+            style={{ color: '#fff' }}
+          >
             退出
-          </button>
-        </nav>
-      </header>
-      <main className="layout-main">
+          </Button>
+        </Space>
+      </Header>
+
+      <Content style={{ padding: '24px', background: '#0a0a0a' }}>
         <Outlet />
-      </main>
-    </div>
+      </Content>
+    </AntLayout>
   )
 }

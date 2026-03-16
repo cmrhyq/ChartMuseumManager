@@ -6,13 +6,11 @@ import ChartList from '@/pages/chart/list/ChartList.tsx'
 import Upload from './pages/upload/Upload.tsx'
 import ChartDetail from '@/pages/chart/detail/ChartDetail.tsx'
 import Settings from './pages/settings/Settings.tsx'
-import './App.css'
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/settings" element={<Settings />} />
       <Route
         path="/"
         element={
@@ -21,6 +19,7 @@ function App() {
           </ProtectedRoute>
         }
       >
+        <Route path="/settings" element={<Settings />} />
         <Route index element={<ChartList />} />
         <Route path="upload" element={<Upload />} />
         <Route path="charts/:name/:version" element={<ChartDetail />} />

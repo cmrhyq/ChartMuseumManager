@@ -1,52 +1,64 @@
-:root {
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #21262d;
-  --border: #30363d;
-  --text-primary: #e6edf3;
-  --text-secondary: #8b949e;
-  --accent: #58a6ff;
-  --accent-hover: #79b8ff;
-  --success: #3fb950;
-  --danger: #f85149;
-  --warning: #d29922;
-  --radius: 8px;
-  --font-sans: 'Outfit', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-}
-
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: var(--font-sans);
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   min-height: 100vh;
 }
 
-a {
-  color: var(--accent);
-  text-decoration: none;
+/* Ant Design 暗色主题微调 */
+.ant-layout {
+  min-height: 100vh;
 }
 
-a:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
+.ant-menu-horizontal {
+  border-bottom: none !important;
 }
 
-button {
-  font-family: inherit;
-  cursor: pointer;
+.ant-menu-horizontal > .ant-menu-item::after,
+.ant-menu-horizontal > .ant-menu-submenu::after {
+  border-bottom: none !important;
 }
 
-input, select, textarea {
-  font-family: inherit;
+/* 表格样式优化 */
+.ant-table-wrapper .ant-table {
+  background: transparent;
+}
+
+.ant-table-thead > tr > th {
+  background: #1f1f1f !important;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom-color: #303030;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #1f1f1f !important;
+}
+
+/* 卡片链接样式 */
+.ant-card a {
+  color: #1668dc;
+}
+
+.ant-card a:hover {
+  color: #4096ff;
+}
+
+/* 分页器样式 */
+.ant-pagination-item-active {
+  border-color: #1668dc;
+}
+
+/* 描述列表边框 */
+.ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-descriptions-bordered .ant-descriptions-item-content {
+  border-color: #303030;
 }

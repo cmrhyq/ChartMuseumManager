@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { Form, Input, Button, Card, Typography, Alert, Space } from 'antd'
+import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { useAuth } from '@/auth/AuthContext'
 import { validateChartMuseumAuth } from '@/api/chartmuseum'
-import './Login.css'
+
+const { Title, Text } = Typography
 
 export default function Login() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
@@ -14,9 +15,9 @@ export default function Login() {
   const location = useLocation()
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? '/'
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (values: { username: string; password: string }) => {
     setError(null)
+    const { username, password } = values
     if (!username.trim() || !password) {
       setError('请输入账号和密码')
       return
@@ -34,45 +35,81 @@ export default function Login() {
   }
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <h1 className="login-title">Charts管理控制台</h1>
-        <form onSubmit={handleSubmit} className="login-form">
-          <label htmlFor="username" className="login-label">
-            用户名
-          </label>
-          <input
-            id="username"
-            type="text"
-            autoComplete="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="login-input"
-            placeholder="请输入用户名"
-            disabled={loading}
-          />
-          <label htmlFor="password" className="login-label">
-            密码
-          </label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="login-input"
-            placeholder="请输入密码"
-            disabled={loading}
-          />
-          {error && <p className="login-error" role="alert">{error}</p>}
-          <button type="submit" className="btn btn-primary login-submit" disabled={loading}>
-            {loading ? '登录中…' : '登录'}
-          </button>
-        </form>
-        {/*<p className="login-footer">*/}
-        {/*  <a href="/settings/Settings">配置 ChartMuseum 地址</a>*/}
-        {/*</p>*/}
-      </div>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
+        padding: 24,
+      }}
+    >
+      <Card
+        style={{
+          width: 400,
+          maxWidth: '100%',
+          background: '#141414',
+          border: '1px solid #303030',
+        }}
+        styles={{ body: { padding: 32 } }}
+      >
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: 48, color: '#1668dc' }}>◈</span>
+            <Title level={3} style={{ marginTop: 16, marginBottom: 8 }}>
+              Charts 管理控制台
+            </Title>
+            <Text type="secondary">请登录以继续</Text>
+          </div>
+
+          <Form
+            name="login"
+            onFinish={handleSubmit}
+            layout="vertical"
+            size="large"
+            autoComplete="off"
+          >
+            <Form.Item
+              name="username"
+              label="用户名"
+              rules={[{ required: true, message: '请输入用户名' }]}
+            >
+              <Input
+                prefix={<UserOutlined style={{ color: '#666' }} />}
+                placeholder="请输入用户名"
+                disabled={loading}
+                autoComplete="username"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              label="密码"
+              rules={[{ required: true, message: '请输入密码' }]}
+            >
+              <Input.Password
+                prefix={<LockOutlined style={{ color: '#666' }} />}
+                placeholder="请输入密码"
+                disabled={loading}
+                autoComplete="current-password"
+              />
+            </Form.Item>
+
+            {error && (
+              <Form.Item>
+                <Alert message={error} type="error" showIcon />
+              </Form.Item>
+            )}
+
+            <Form.Item style={{ marginBottom: 0 }}>
+              <Button type="primary" htmlType="submit" loading={loading} block>
+                登录
+              </Button>
+            </Form.Item>
+          </Form>
+        </Space>
+      </Card>
     </div>
   )
 }

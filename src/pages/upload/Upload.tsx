@@ -1,44 +1,41 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Card, Upload as AntUpload, Button, Typography, Alert, Space, message } from 'antd'
+import { InboxOutlined, CloudUploadOutlined } from '@ant-design/icons'
+import type { UploadFile, UploadProps } from 'antd'
 import { useAuth } from '@/auth/AuthContext.tsx'
 import { uploadChart } from '@/api/chartmuseum.ts'
-import './Upload.css'
+
+const { Title, Text, Paragraph } = Typography
+const { Dragger } = AntUpload
 
 export default function Upload() {
   const { token } = useAuth()
   const getToken = useCallback(() => token, [token])
-  const [file, setFile] = useState<File | null>(null)
+  const [fileList, setFileList] = useState<UploadFile[]>([])
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    setFile(f ?? null)
-    setError(null)
-    setSuccess(false)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!file) {
+  const handleUpload = async () => {
+    if (fileList.length === 0) {
       setError('请选择要上传的 .tgz 文件')
       return
     }
+
+    const file = fileList[0]
     if (!file.name.endsWith('.tgz')) {
       setError('仅支持 Helm Chart 打包文件（.tgz）')
       return
     }
+
     setUploading(true)
     setError(null)
-    setSuccess(false)
+
     try {
-      await uploadChart(file, getToken)
-      setSuccess(true)
-      setFile(null)
-      if (inputRef.current) inputRef.current.value = ''
+      await uploadChart(file.originFileObj as File, getToken)
+      message.success('上传成功！')
+      setFileList([])
       setTimeout(() => navigate('/'), 1500)
     } catch {
       setError('上传失败，请检查网络与 ChartMuseum 配置后重试')
@@ -47,32 +44,68 @@ export default function Upload() {
     }
   }
 
+  const uploadProps: UploadProps = {
+    name: 'file',
+    multiple: false,
+    accept: '.tgz',
+    fileList,
+    beforeUpload: (file) => {
+      if (!file.name.endsWith('.tgz')) {
+        message.error('仅支持 .tgz 文件')
+        return AntUpload.LIST_IGNORE
+      }
+      setFileList([file as unknown as UploadFile])
+      setError(null)
+      return false
+    },
+    onRemove: () => {
+      setFileList([])
+      setError(null)
+    },
+  }
+
   return (
-    <div className="page-card upload-card">
-      <h2 className="card-title">上传 Helm Chart</h2>
-      <p className="text-secondary upload-desc">
-        选择通过 <code>helm package</code> 打包的 .tgz 文件上传到 ChartMuseum 仓库。
-      </p>
-      <form onSubmit={handleSubmit} className="upload-form">
-        <div className="upload-field">
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".tgz"
-            onChange={handleFileChange}
-            className="upload-input"
-            id="chart-file"
-          />
-          <label htmlFor="chart-file" className="upload-label">
-            {file ? file.name : '选择 .tgz 文件'}
-          </label>
+    <Card
+      style={{
+        maxWidth: 600,
+        margin: '0 auto',
+        background: '#141414',
+        border: '1px solid #303030',
+      }}
+    >
+      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <div>
+          <Title level={4} style={{ marginBottom: 8 }}>
+            <CloudUploadOutlined style={{ marginRight: 8 }} />
+            上传 Helm Chart
+          </Title>
+          <Paragraph type="secondary" style={{ marginBottom: 0 }}>
+            选择通过 <Text code>helm package</Text> 打包的 .tgz 文件上传到 ChartMuseum 仓库。
+          </Paragraph>
         </div>
-        {error && <p className="upload-error">{error}</p>}
-        {success && <p className="upload-success">上传成功，正在跳转到Chart列表…</p>}
-        <button type="submit" className="btn btn-primary" disabled={!file || uploading}>
-          {uploading ? '上传中…' : '上传'}
-        </button>
-      </form>
-    </div>
+
+        <Dragger {...uploadProps} style={{ background: '#1f1f1f', borderColor: '#303030' }}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined style={{ color: '#1668dc', fontSize: 48 }} />
+          </p>
+          <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
+          <p className="ant-upload-hint">仅支持 .tgz 格式的 Helm Chart 包</p>
+        </Dragger>
+
+        {error && <Alert message={error} type="error" showIcon />}
+
+        <Button
+          type="primary"
+          onClick={handleUpload}
+          disabled={fileList.length === 0}
+          loading={uploading}
+          icon={<CloudUploadOutlined />}
+          size="large"
+          block
+        >
+          {uploading ? '上传中...' : '上传'}
+        </Button>
+      </Space>
+    </Card>
   )
 }
