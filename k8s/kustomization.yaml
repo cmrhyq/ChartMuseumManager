@@ -8,14 +8,14 @@ resources:
   - ingress.yaml
 
 commonLabels:
-  app: chartmuseum-manager
+  app: chart-museum-manager
   version: v1.0.0
 
 # 可在此设置命名空间
 namespace: production
 
 # 可在此设置镜像
-# images:
-#   - name: chartmuseum-manager
-#     newName: your-registry/chartmuseum-manager
-#     newTag: v1.0.0
+images:
+  - name: chart-museum-manager
+    newName: ccr.ccs.tencentyun.com/cmrhyq/dev
+    newTag: chartMuseumManager-latest

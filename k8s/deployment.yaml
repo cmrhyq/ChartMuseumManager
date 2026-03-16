@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chartmuseum-manager
+  name: chart-museum-manager
   labels:
-    app: chartmuseum-manager
+    app: chart-museum-manager
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: chartmuseum-manager
+      app: chart-museum-manager
   template:
     metadata:
       labels:
-        app: chartmuseum-manager
+        app: chart-museum-manager
     spec:
       containers:
-        - name: chartmuseum-manager
-          image: chartmuseum-manager:latest
+        - name: chart-museum-manager
+          image: ccr.ccs.tencentyun.com/cmrhyq/dev:chartMuseumManager-latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
