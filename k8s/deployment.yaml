@@ -9,6 +9,13 @@ spec:
   selector:
     matchLabels:
       app: chart-museum-manager
+  # 滚动更新策略，降低发布对线上流量的影响
+  # 如需一次性替换，可在环境覆盖中调整为 Recreate
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
   template:
     metadata:
       labels:
@@ -32,15 +39,6 @@ spec:
                 configMapKeyRef:
                   name: chart-museum-manager-config
                   key: VITE_CHARTMUSEUM_API
-          # 滚动更新策略，降低发布对线上流量的影响
-          # 如需一次性替换，可在环境覆盖中调整为 Recreate
-          # 这里使用较为保守的默认值，适合大多数前端应用场景
-          # （Deployment 级别字段由 kustomization 或上层覆盖时，请保持语义一致）
-      strategy:
-        type: RollingUpdate
-        rollingUpdate:
-          maxUnavailable: 0
-          maxSurge: 1
           resources:
             requests:
               cpu: 50m

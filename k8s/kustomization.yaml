@@ -7,9 +7,10 @@ resources:
   - service.yaml
   - ingress.yaml
 
-commonLabels:
-  app: chart-museum-manager
-  version: v1.0.0
+labels:
+  - pairs:
+      app: chart-museum-manager
+      version: v1.0.0
 
 # 可在此设置命名空间
 namespace: production
