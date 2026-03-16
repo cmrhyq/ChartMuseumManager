@@ -1,5 +1,5 @@
 # 生产阶段 - 使用 nginx 提供静态文件服务
-FROM nginx:alpine
+FROM registry.cn-shenzhen.aliyuncs.com/amgs/nginx:latest
 
 # 复制自定义 nginx 配置
 COPY nginx.conf /etc/nginx/conf.d/default.conf
