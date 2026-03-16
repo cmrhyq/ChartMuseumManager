@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chartmuseum-manager-config
+  labels:
+    app: chartmuseum-manager
+data:
+  # 可在此添加前端运行时配置
+  # 例如 API 地址等（如需注入到容器中）
+  CHARTMUSEUM_API_URL: "http://chartmuseum:8080"

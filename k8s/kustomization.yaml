@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - configmap.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+commonLabels:
+  app: chartmuseum-manager
+  version: v1.0.0
+
+# 可在此设置命名空间
+# namespace: chartmuseum
+
+# 可在此设置镜像
+# images:
+#   - name: chartmuseum-manager
+#     newName: your-registry/chartmuseum-manager
+#     newTag: v1.0.0
