@@ -1,0 +1,11 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: chart-museum-manager-strip-prefix
+  namespace: production
+spec:
+  stripPrefix:
+    prefixes:
+      - /manager/chartmuseum
+    forceSlash: false
+

@@ -5,23 +5,25 @@ metadata:
   labels:
     app: chart-museum-manager
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    # 建议在生产环境开启 HTTPS 并启用 301 跳转
-    # 如已在上游（如 ALB / 网关）终止 TLS，可按需调整为 "false"
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # 通过 Traefik 中间件去除 /manager/chartmuseum 前缀，避免后端服务感知部署路径。
+    # 请求路径示例：
+    #   外部：/manager/chartmuseum/index.html
+    #   后端：/index.html
+    traefik.ingress.kubernetes.io/router.middlewares: production-chart-museum-manager-strip-prefix@kubernetescrd
+    # 建议在生产环境开启 HTTPS 并启用 301 跳转（具体取决于全局入口配置）
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
   rules:
     - http:
         paths:
-          - path: /chartmuseum/manager
+          - path: /manager/chartmuseum
             pathType: Prefix
             backend:
               service:
                 name: chart-museum-manager-service
                 port:
                   name: http
-  # 如在 Ingress Controller 中终止 TLS，请在此处配置证书 Secret，并将上方 host 替换为实际域名
+  # 如在 Ingress Controller 中终止 TLS，请在此处配置证书 Secret，并将上方 host（如有）替换为实际域名
   # tls:
   #   - hosts:
   #       - chartmuseum-manager.example.com
