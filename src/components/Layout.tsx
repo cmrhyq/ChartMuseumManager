@@ -29,7 +29,7 @@ export default function Layout() {
     {
       key: '/upload',
       icon: <UploadOutlined />,
-      label: <NavLink to="/upload">上传图表</NavLink>,
+      label: <NavLink to="/upload">上传Chart</NavLink>,
     },
     {
       key: '/settings',
