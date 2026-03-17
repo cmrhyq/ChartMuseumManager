@@ -38,7 +38,7 @@ spec:
           # 基础镜像名称由 kustomization.yaml 中的 images 段统一管理
           # 默认写成逻辑名称，具体 registry 与 tag 通过 Kustomize 覆盖，便于在不同环境复用
           image: chart-museum-manager
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 80
