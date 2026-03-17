@@ -1,6 +1,19 @@
 # Chart Museum Service Manager Change Log
 项目代码所有显著的变更都会记录在这个文件中。
 
+## [1.0.1] - 2026-03-17
+### 变更
+- 更新项目UI为Ant Design
+### 新增
+- 新增镜像构建Dockerfile和相关文件
+- 新增Kubernetes部署相关文件
+### 关联资源
+- 代码标签：1.0.1
+- 容器镜像：
+  - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:v1.0.1-rc.1
+  - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:latest
+- git commit: 48c99b4723ade5fd4c23eb804a3eaff4c780cfac
+
 ## [1.0.0] - 2026-03-15
 ### 初始化
 - 项目初始化
