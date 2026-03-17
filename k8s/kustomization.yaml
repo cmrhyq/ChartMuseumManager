@@ -21,4 +21,4 @@ images:
   # 通过 Kustomize 统一管理镜像地址和标签，避免在 deployment.yaml 中硬编码 registry 与 tag
   - name: chart-museum-manager
     newName: ccr.ccs.tencentyun.com/cmrhyq/dev
-    newTag: chartMuseumManager-latest
+    newTag: chartMuseumManager-v1.0.0
