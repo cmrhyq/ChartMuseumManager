@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Card, Upload as AntUpload, Button, Typography, Alert, Space, message } from 'antd'
 import { InboxOutlined, CloudUploadOutlined } from '@ant-design/icons'
 import type { UploadFile, UploadProps } from 'antd'
+import type { RcFile } from 'antd/es/upload'
 import { useAuth } from '@/auth/AuthContext.tsx'
 import { uploadChart } from '@/api/chartmuseum.ts'
 
@@ -13,18 +14,18 @@ export default function Upload() {
   const { token } = useAuth()
   const getToken = useCallback(() => token, [token])
   const [fileList, setFileList] = useState<UploadFile[]>([])
+  const [rawFile, setRawFile] = useState<RcFile | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
 
   const handleUpload = async () => {
-    if (fileList.length === 0) {
+    if (!rawFile) {
       setError('请选择要上传的 .tgz 文件')
       return
     }
 
-    const file = fileList[0]
-    if (!file.name.endsWith('.tgz')) {
+    if (!rawFile.name.endsWith('.tgz')) {
       setError('仅支持 Helm Chart 打包文件（.tgz）')
       return
     }
@@ -33,9 +34,10 @@ export default function Upload() {
     setError(null)
 
     try {
-      await uploadChart(file.originFileObj as File, getToken)
+      await uploadChart(rawFile as unknown as File, getToken)
       message.success('上传成功！')
       setFileList([])
+      setRawFile(null)
       setTimeout(() => navigate('/'), 1500)
     } catch {
       setError('上传失败，请检查网络与 ChartMuseum 配置后重试')
@@ -55,11 +57,13 @@ export default function Upload() {
         return AntUpload.LIST_IGNORE
       }
       setFileList([file as unknown as UploadFile])
+      setRawFile(file as RcFile)
       setError(null)
       return false
     },
     onRemove: () => {
       setFileList([])
+      setRawFile(null)
       setError(null)
     },
   }
