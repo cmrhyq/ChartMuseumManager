@@ -104,3 +104,28 @@ export async function fetchChartDetail(
   })
   return handleResponse<ChartDetail>(res)
 }
+
+/** 下载 Chart 文件，返回 blob 与解析出的文件名（带认证） */
+export async function downloadChartFile(
+  url: string,
+  getToken: () => string | null,
+  fallbackFilename: string,
+): Promise<{ blob: Blob; filename: string }> {
+  const res = await fetch(url, {
+    headers: getAuthHeaders(getToken),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(text || `HTTP ${res.status}`)
+  }
+
+  const blob = await res.blob()
+  const disposition = res.headers.get('Content-Disposition') || ''
+  let filename = fallbackFilename
+  const match = disposition.match(/filename="?([^"]+)"?/i)
+  if (match && match[1]) {
+    filename = match[1]
+  }
+
+  return { blob, filename }
+}

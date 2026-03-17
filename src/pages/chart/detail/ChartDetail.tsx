@@ -10,6 +10,7 @@ import {
   Tag,
   Space,
   List,
+  message,
 } from 'antd'
 import {
   ArrowLeftOutlined,
@@ -19,7 +20,7 @@ import {
   InfoCircleOutlined,
 } from '@ant-design/icons'
 import { useAuth } from '@/auth/AuthContext.tsx'
-import { fetchChartDetail } from '@/api/chartmuseum.ts'
+import { fetchChartDetail, downloadChartFile } from '@/api/chartmuseum.ts'
 import type { ChartDetail as ChartDetailType } from '@/types/chartmuseum.ts'
 
 const { Title, Text } = Typography
@@ -31,6 +32,27 @@ export default function ChartDetail() {
   const [detail, setDetail] = useState<ChartDetailType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const handleDownload = useCallback(
+    async (url: string) => {
+      try {
+        const fallback = `${detail?.name ?? 'chart'}-${detail?.version ?? ''}.tgz`
+        const { blob, filename } = await downloadChartFile(url, getToken, fallback)
+
+        const blobUrl = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = blobUrl
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        URL.revokeObjectURL(blobUrl)
+      } catch {
+        message.error('下载失败，请检查网络与权限配置后重试')
+      }
+    },
+    [getToken, detail],
+  )
 
   useEffect(() => {
     if (!name || !version) return
@@ -212,9 +234,9 @@ export default function ChartDetail() {
               dataSource={detail.urls}
               renderItem={(url) => (
                 <List.Item style={{ padding: '12px 16px' }}>
-                  <a href={url} rel="noopener noreferrer" target="_blank">
+                  <Button type="link" style={{ padding: 0 }} onClick={() => handleDownload(url)}>
                     {url}
-                  </a>
+                  </Button>
                 </List.Item>
               )}
             />
