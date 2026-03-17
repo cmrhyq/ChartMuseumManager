@@ -1,7 +1,17 @@
 # Chart Museum Service Manager Change Log
 项目代码所有显著的变更都会记录在这个文件中。
 
-## [1.0.1] - 2026-03-17
+## [v1.0.1-rc.2] - 2026-03-18
+### 变更
+- 修复v1.0.1-rc.1版本致命问题，chart无法上传、下载的问题
+### 关联资源
+- 代码标签：v1.0.1-rc.1
+- 容器镜像：
+    - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:v1.0.1-rc.2
+    - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:latest
+- git commit: dd37dbe120dd3284f8fd684d275d5f22930d2774
+
+## [v1.0.1-rc.1] - 2026-03-17
 ### 变更
 - 更新项目UI为Ant Design
 ### 新增
@@ -14,7 +24,7 @@
   - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:latest
 - git commit: 48c99b4723ade5fd4c23eb804a3eaff4c780cfac
 
-## [1.0.0] - 2026-03-15
+## [v1.0.0] - 2026-03-15
 ### 初始化
 - 项目初始化
 ### 变更
