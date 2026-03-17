@@ -7,6 +7,10 @@ import { AuthProvider } from '@/auth/AuthContext'
 import App from './App'
 import './index.css'
 
+// 从 Vite 配置中获取 base 路径，用于 React Router 的 basename
+// 生产环境部署在 /manager/chartmuseum/ 路径下
+const basename = import.meta.env.BASE_URL
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ConfigProvider
@@ -35,7 +39,7 @@ createRoot(document.getElementById('root')!).render(
         },
       }}
     >
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <AuthProvider>
           <App />
         </AuthProvider>
