@@ -5,7 +5,7 @@ metadata:
   labels:
     app: chart-museum-manager
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: chart-museum-manager
@@ -23,8 +23,18 @@ spec:
     spec:
       imagePullSecrets:
         - name: tencent-ccr-secret
+      # 设置 Pod 级别的安全上下文，确保文件系统权限正确
+      securityContext:
+        # 以 root 组运行，确保对 nginx 目录有访问权限
+        fsGroup: 0
       containers:
         - name: chart-museum-manager
+          # 容器级别安全上下文
+          securityContext:
+            # 以 root 用户运行 nginx（nginx 官方镜像默认行为）
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
           # 基础镜像名称由 kustomization.yaml 中的 images 段统一管理
           # 默认写成逻辑名称，具体 registry 与 tag 通过 Kustomize 覆盖，便于在不同环境复用
           image: chart-museum-manager
