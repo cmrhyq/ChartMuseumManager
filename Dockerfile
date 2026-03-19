@@ -1,15 +1,8 @@
 # 生产阶段 - 使用 nginx 提供静态文件服务
 FROM ccr.ccs.tencentyun.com/cmrhyq/nginx:alpine
 
-# 构建参数 - 用于镜像标签
-ARG BUILD_DATE
-ARG VERSION
-ARG COMMIT_SHA
-
 # 镜像标签
-LABEL org.opencontainers.image.created="${BUILD_DATE}" \
-      org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.revision="${COMMIT_SHA}" \
+LABEL org.opencontainers.image.author="cmrhyq@163.com" \
       org.opencontainers.image.title="ChartMuseum Manager" \
       org.opencontainers.image.description="ChartMuseum Manager Web UI" \
       org.opencontainers.image.source="https://github.com/cmrhyq/chartmuseum-manager"

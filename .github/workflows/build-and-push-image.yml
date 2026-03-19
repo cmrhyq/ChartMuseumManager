@@ -61,17 +61,13 @@ jobs:
           else
             VERSION=${GITHUB_REF#refs/tags/}
           fi
-          # 移除 'v' 前缀用于 Docker 标签
-          VERSION_NO_V=${VERSION#v}
           SHORT_SHA=$(git rev-parse --short HEAD)
           
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "VERSION_NO_V=$VERSION_NO_V" >> $GITHUB_OUTPUT
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_OUTPUT
           echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
           
           echo "📦 Version: $VERSION"
-          echo "🔖 Version (no v): $VERSION_NO_V"
           echo "📝 Commit: $SHORT_SHA"
 
       # 设置 Docker Buildx
@@ -95,12 +91,8 @@ jobs:
           tags: |
             # 版本标签 (v1.0.0)
             type=raw,value=${{ steps.version.outputs.VERSION }}
-            # 不带 v 的版本标签 (1.0.0)
-            type=raw,value=${{ steps.version.outputs.VERSION_NO_V }}
             # latest 标签 (仅非预发布版本)
             type=raw,value=latest,enable=${{ !contains(steps.version.outputs.VERSION, '-') }}
-            # commit hash 标签
-            type=raw,value=sha-${{ steps.version.outputs.SHORT_SHA }}
 
       # 构建并推送 Docker 镜像
       - name: Build and push Docker image
@@ -112,10 +104,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            BUILD_DATE=${{ steps.version.outputs.BUILD_DATE }}
-            VERSION=${{ steps.version.outputs.VERSION }}
-            COMMIT_SHA=${{ steps.version.outputs.SHORT_SHA }}
 
       # 输出构建摘要
       - name: Build Summary
