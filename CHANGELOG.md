@@ -1,11 +1,24 @@
 # Chart Museum Service Manager Change Log
 项目代码所有显著的变更都会记录在这个文件中。
 
+## [v1.0.1-rc.3] - 2026-03-19
+### 变更
+- 修改程序访问的Base URL，从/manager/chartmuseum变成/chartmuseum-web
+- 更新Dockerfile使用的基础镜像
+### 新增
+- 新增Github Actions 自动构建镜像脚本
+### 关联资源
+- 代码标签：v1.0.1-rc.3
+- 容器镜像：
+    - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:v1.0.1-rc.3
+    - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:latest
+- git commit: 2c8bb2866d1b74be6f39c30e4117d6ffd0bdc47a
+
 ## [v1.0.1-rc.2] - 2026-03-18
 ### 变更
 - 修复v1.0.1-rc.1版本致命问题，chart无法上传、下载的问题
 ### 关联资源
-- 代码标签：v1.0.1-rc.1
+- 代码标签：v1.0.1-rc.2
 - 容器镜像：
     - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:v1.0.1-rc.2
     - ccr.ccs.tencentyun.com/cmrhyq/chartmuseum-manager:latest
