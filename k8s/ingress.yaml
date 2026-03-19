@@ -5,9 +5,9 @@ metadata:
   labels:
     app: chart-museum-manager
   annotations:
-    # 通过 Traefik 中间件去除 /manager/chartmuseum 前缀，避免后端服务感知部署路径。
+    # 通过 Traefik 中间件去除 /chartmuseum-web 前缀，避免后端服务感知部署路径。
     # 请求路径示例：
-    #   外部：/manager/chartmuseum/index.html
+    #   外部：/chartmuseum-web/index.html
     #   后端：/index.html
     traefik.ingress.kubernetes.io/router.middlewares: production-chart-museum-manager-strip-prefix@kubernetescrd
     # 建议在生产环境开启 HTTPS 并启用 301 跳转（具体取决于全局入口配置）
@@ -16,7 +16,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /manager/chartmuseum
+          - path: /chartmuseum-web
             pathType: Prefix
             backend:
               service:

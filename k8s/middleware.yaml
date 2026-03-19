@@ -6,6 +6,5 @@ metadata:
 spec:
   stripPrefix:
     prefixes:
-      - /manager/chartmuseum
+      - /chartmuseum-web
     forceSlash: false
-
