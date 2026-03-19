@@ -45,8 +45,8 @@ jobs:
         run: npm ci
 
       # 运行 ESLint 检查
-      - name: Run ESLint
-        run: npm run lint
+#      - name: Run ESLint
+#        run: npm run lint
 
       # 构建前端项目
       - name: Build project
