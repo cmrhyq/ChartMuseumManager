@@ -1,5 +1,5 @@
 # 生产阶段 - 使用 nginx 提供静态文件服务
-FROM registry.cn-shenzhen.aliyuncs.com/amgs/nginx:latest
+FROM ccr.ccs.tencentyun.com/cmrhyq/nginx:alpine
 
 # 构建参数 - 用于镜像标签
 ARG BUILD_DATE
