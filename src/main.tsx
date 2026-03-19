@@ -7,10 +7,6 @@ import { AuthProvider } from '@/auth/AuthContext'
 import App from './App'
 import './index.css'
 
-// TODO 最新版本部署到k8s
-// TODO Github Actions 自动打镜像推送到腾讯云
-// TODO k8s 配置 /manager/chartmuseum 替换为 /index
-
 // 从 Vite 配置中获取 base 路径，用于 React Router 的 basename
 // 生产环境部署在 /manager/chartmuseum/ 路径下
 const basename = import.meta.env.BASE_URL
