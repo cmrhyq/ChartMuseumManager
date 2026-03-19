@@ -8,3 +8,50 @@ data:
   # 可在此添加前端运行时配置
   # 例如 API 地址等（如需注入到容器中）
   VITE_CHARTMUSEUM_API: "http://10.1.0.7:30091"
+  # Nginx 配置文件
+  default.conf: |
+    server {
+        listen 80;
+        server_name localhost;
+        root /usr/share/nginx/html;
+        index index.html;
+
+        # 正确的静态资源斜杠移除规则
+        # 匹配所有以 /assets/ 开头、包含扩展名且末尾带斜杠的URL
+        rewrite ^(/assets/.+\.(css|js|png|jpg|jpeg|gif|ico))/$ $1 permanent;
+
+        # 防止目录访问（可选）
+        location ~ /assets/.*\/$ {
+            return 404;
+        }
+
+        # 使用系统自带的 MIME 类型文件
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        # gzip 压缩配置
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_proxied expired no-cache no-store private auth;
+        gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml application/javascript application/json;
+
+        # 静态资源缓存 - 优化版
+        location /assets/ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            # 继承父级的 add_header，确保安全头不丢失
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header X-XSS-Protection "1; mode=block" always;
+        }
+
+        # SPA 路由支持 - 所有路由都返回 index.html
+        location / {
+            try_files $uri $uri/ /index.html;
+            # 确保安全头在根路径也生效
+            add_header X-Frame-Options "SAMEORIGIN" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header X-XSS-Protection "1; mode=block" always;
+        }
+    }
